@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>springboot的IoC机制 | 愿晨光洒落你身</title><meta name="author" content="hcz"><meta name="copyright" content="hcz"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="springboot的IoC机制spring有两个重要的概念，分别是ioc和aop。本篇文章，我们就来讲一讲ioc机制。ioc即控制反转，他让先new对象在使用对象的正常模式，变为直接使用对象而不用new的模式。本文将从ioc容器开始介绍，再到我们面临的实际问题到ioc给出的解决方案说明ioc机制。  ioc简介 IoC（Inversion of Control，控制反转） 是 Spring 框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="springboot的IoC机制">
+<meta property="og:url" content="http://example.com/2025/01/03/springboot%E7%9A%84IoC%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="愿晨光洒落你身">
+<meta property="og:description" content="springboot的IoC机制spring有两个重要的概念，分别是ioc和aop。本篇文章，我们就来讲一讲ioc机制。ioc即控制反转，他让先new对象在使用对象的正常模式，变为直接使用对象而不用new的模式。本文将从ioc容器开始介绍，再到我们面临的实际问题到ioc给出的解决方案说明ioc机制。  ioc简介 IoC（Inversion of Control，控制反转） 是 Spring 框架">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/%E5%A4%B4%E5%83%8F.jpg">
+<meta property="article:published_time" content="2025-01-03T11:42:14.000Z">
+<meta property="article:modified_time" content="2025-01-03T11:59:44.178Z">
+<meta property="article:author" content="hcz">
+<meta property="article:tag" content="java后端">
+<meta property="article:tag" content="spring">
+<meta property="article:tag" content="springboot">
+<meta property="article:tag" content="IoC机制">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/%E5%A4%B4%E5%83%8F.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/01/03/springboot%E7%9A%84IoC%E6%9C%BA%E5%88%B6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'springboot的IoC机制',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-01-03 19:59:44'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (true) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="愿晨光洒落你身"><span class="site-name">愿晨光洒落你身</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">springboot的IoC机制</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-03T11:42:14.000Z" title="发表于 2025-01-03 19:42:14">2025-01-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-03T11:59:44.178Z" title="更新于 2025-01-03 19:59:44">2025-01-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java/">java</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java/%E7%BC%96%E7%A8%8B/">编程</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/java/%E7%BC%96%E7%A8%8B/%E5%90%8E%E7%AB%AF/">后端</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="springboot的IoC机制"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="springboot的IoC机制"><a href="#springboot的IoC机制" class="headerlink" title="springboot的IoC机制"></a>springboot的IoC机制</h1><p>spring有两个重要的概念，分别是ioc和aop。本篇文章，我们就来讲一讲ioc机制。ioc即控制反转，他让先new对象在使用对象的正常模式，变为直接使用对象而不用new的模式。本文将从ioc容器开始介绍，再到我们面临的实际问题到ioc给出的解决方案说明ioc机制。</p>
+<hr>
+<h2 id="ioc简介"><a href="#ioc简介" class="headerlink" title="ioc简介"></a>ioc简介</h2><blockquote>
+<p>IoC（Inversion of Control，控制反转） 是 Spring 框架的核心设计原则之一。通过使用 IoC 机制，Spring 解决了传统应用程序开发中的许多问题，尤其是与对象创建、依赖管理和代码耦合度相关的问题。IoC 的核心思想是将对象的创建和依赖管理从应用程序代码中分离出来，交给框架来处理。这样可以提高代码的灵活性、可测试性和可维护性。</p>
+</blockquote>
+<p>简单来说，就是我们不再手动使用new来创建对象，而是告诉spring哪些类我们想实例化，哪些时候想使用这个实例化的对象，然后spring就自动帮我们完成这些工作。理解ioc机制最重要的是理解ioc容器的运行过程。</p>
+<h2 id="ioc容器和bean"><a href="#ioc容器和bean" class="headerlink" title="ioc容器和bean"></a>ioc容器和bean</h2><p>上面说过我们要告诉spring哪些类要实例化，哪些时候要使用这些实例化。这两个步骤就是创建bean(注册bean),和使用bean（依赖注入），即bean就是我们让spring来管理的对象。bean就是一般的Java对象，只不过他通过spring来管理而已。而被spring管理的bean都放在ioc容器中，即ioc容器就是一个放bean的仓库。我们可以在里面找到我们想要的类的实例。<br>下面我们就从怎么注册bean和怎么通过依赖注入来使用bean来说明这个过程。</p>
+<h3 id="使用注解注册bean"><a href="#使用注解注册bean" class="headerlink" title="使用注解注册bean"></a>使用注解注册bean</h3><p>我们怎么和spring交流，告诉他哪些类要注册为bean，来让spring代管呢？有两种主要的方法，一种是使用xml来配置，一种是使用注解来注册bean，我们主要介绍后一种方法。</p>
+<p>springboot会在指定的范围内进行扫描，在这个范围内找到需要注册的bean，所以第一件事就是要确定扫描的范围。</p>
+<p>在springboot中，应用程序通常会有一个主应用类，这个类会使用@SpringBootApplication注解。@SpringBootApplication实际上是一个组合注解，它包含了@Configuration、@EnableAutoConfiguration和@ComponentScan。@ComponentScan默认会从包含主应用类的包开始，递归地扫描该包及其子包中的所有类，查找带有相应注解的类，并将它们注册为Spring容器中的Bean。也就是说，主应用类所在包就是扫描范围，当然，我们也可以使用componentScan注解手动指定增加扫描范围。</p>
+<p>第二件事就是要告诉Springboot，在扫描范围内，有哪些类需要被注册为bean。<br>我们可以使用Component注解，Repository注解，Service注解和Controller注解来为<strong>类</strong>做标注，告诉spring这些类你要来帮我们实例化。这四个注解功能一样，都是告诉spring来实例化，唯一的不同就是单词的语义不同，方便程序员理解而已。而且要注意他们只能为类来注解。如下例所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Repository</span> <span class="comment">// 说明这是持久层对象，也可以使用其他三个注解</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span>  <span class="title class_">UserRepository</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">findUserById</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">User</span>(id, <span class="string">&quot;Jane Doe&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们还可以使用configuration注解和bean注解来注册bean。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span><span class="comment">// 说明这是一个配置类，和业务逻辑区分开，这个类是专门用来注册bean的。</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AppConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span><span class="comment">// 将bean注解用于方法上，可以实现更加复杂的对象化</span></span><br><span class="line">    <span class="keyword">public</span> UserService <span class="title function_">userService</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;creating userSerivce&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">UserService</span>();<span class="comment">// 容器中有新增一个UserSerive的bean</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> OrderService <span class="title function_">orderService</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 直接调用 userService() 方法</span></span><br><span class="line">        System.out.println(<span class="string">&quot;creating orderSerivce&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">OrderService</span>(userService());<span class="comment">//新增一个OrderService的bean，但是UserSerive的bean不会再增加。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>spring将@Bean注解的方法的返回结果注册为bean。虽然bean注解也能用于字段和类，但是用于方法是最常见的。我们要明确，这个类的Bean方法并不是顺序执行的。也就是说，在执行业务代码以前，这些方法就被spring隐式执行了，你并不需要显式执行他。</p>
+<p>这里还可以注意，spring会自动解析不同的bean之间的依赖关系。例如OrderService依赖于UserSerive，所以会先生成UserSerive的bean，然后再生成OrderSerive的bean时，<strong>自动使用了</strong>已经生产的UserService的bean，所以userSerive方法只会被调用一次，而且只有一个UserService类型的bean在容器中。</p>
+<p>在容器中，可以理解每个bean都是一个键值对。要想找到某个bean可以使用bean的名字。bean名字对于类来说，默认值就是类名首字母小写。如UserRepository的实例bean的名字为userRepository 。如果是用于方法的bean注解产生的bean，那么他们名字为函数名。</p>
+<h3 id="使用bean"><a href="#使用bean" class="headerlink" title="使用bean"></a>使用bean</h3><p>使用bean也叫依赖注入。所谓注入，可以理解为赋值。在我们需要ioc容器中的实例时，只要spring，我们需要这个类的一个实例，如果这个类的实例在容器中，spring就会提供一个实例给我们。</p>
+<p>我们可以使用autowired注解来告诉spring我们要使用这个实例。autowired能将一个<strong>类型</strong>合适的bean直接注入（或者说赋值）到一个类的成员中。</p>
+<p>autowired注解可以用于字段，set方法，构造函数等地，下面来看一下怎么使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">// 方法一，直接对字段使用，将类型符合bean赋值给userRepository成员</span></span><br><span class="line">    <span class="comment">// @Autowired</span></span><br><span class="line">    <span class="comment">// private UserRepository userRepository;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方法二对构造函数使用，会使用bean来作为构造函数的参数</span></span><br><span class="line">    <span class="comment">// @Autowired  </span></span><br><span class="line">    <span class="comment">// public UserService(UserRepository userRepository) &#123;</span></span><br><span class="line">    <span class="comment">//     this.userRepository = userRepository;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 方法三，给set方法标注</span></span><br><span class="line">    <span class="comment">// @Autowired  </span></span><br><span class="line">    <span class="comment">// public setUserService(UserRepository userRepository) &#123;</span></span><br><span class="line">    <span class="comment">//     this.userRepository = userRepository;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//   方法四，给形参添加注解</span></span><br><span class="line">    <span class="comment">// public UserService(@Autowired UserRepository userRepository) &#123;</span></span><br><span class="line">    <span class="comment">//     this.userRepository = userRepository;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方法五，配合Qualifier注解实现指定注入</span></span><br><span class="line">    <span class="comment">// @Autowired</span></span><br><span class="line">    <span class="comment">// @Qualifier(value = &quot;....&quot;) // 给出bean的名字即可</span></span><br><span class="line">    <span class="comment">// private UserRepository userRepository;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getUserInfo</span><span class="params">()</span> &#123;</span><br><span class="line">        userRepository.findUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>spring注入成功后，我们就可以直接使用这些类成员了，不再需要手动new了。</p>
+<h2 id="面临的问题和解决方案"><a href="#面临的问题和解决方案" class="headerlink" title="面临的问题和解决方案"></a>面临的问题和解决方案</h2><p>这样的设计更加复杂，更加不利于理解内部的执行流程，也不利于阅读，我们不禁要问，ioc机制到底解决了哪些问题呢？</p>
+<p>正常情况下，我们要使用一个类的方法，都要先实例化一个对象，然后再使用其中的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> UserRepository userRepository;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">UserService</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.userRepository = <span class="keyword">new</span> <span class="title class_">UserRepository</span>();  <span class="comment">// 依赖硬编码</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getUserInfo</span><span class="params">()</span> &#123;</span><br><span class="line">        userRepository.findUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是这样做有几个问题。首先直接使用硬编码，让UserService类和UserRepository耦合过紧。如果此时我们想让this.userRepository指向一个UserRepository的一个子类，比如数据库型的Repositoty或者内存型的Repository就不仅要新增这两个类，也要修改UserSerive的构造函数的代码。如果只有这一处要修改还好，但是如果很多地方都使用这样的硬编码，修改就会很麻烦。而ioc能很好地解决这个问题。</p>
+<p>首先我们需要定义不同的UserRepository的子类，将UserRepository变为接口。使用Primary注解指定为默认注入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第一个实现类</span></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="meta">@Primary</span>  <span class="comment">// 指定为默认实现</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DatabaseUserRepository</span> <span class="keyword">implements</span> <span class="title class_">UserRepository</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">findUserById</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">User</span>(id, <span class="string">&quot;John Doe&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第二个实现类</span></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InMemoryUserRepository</span> <span class="keyword">implements</span> <span class="title class_">UserRepository</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">findUserById</span><span class="params">(Long id)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">User</span>(id, <span class="string">&quot;Jane Doe&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们就可以很灵活地使用autowired注解来自动注入。也可以使用Qualifier注解显式指定要注入的类。甚至使用Profile注解，configuraion注解和bean注解来决定在不同的运行环境下使用不同的实现类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserRepository userRepository;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 依赖通过构造函数注入</span></span><br><span class="line">    <span class="meta">@Autowired</span>  <span class="comment">// 此处的userRepository实例会由spring来自动创建并以参数的形式传入这个构造函数，不再靠new来手动创建</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">UserService</span><span class="params">(UserRepository userRepository)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.userRepository = userRepository;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getUserInfo</span><span class="params">()</span> &#123;</span><br><span class="line">        userRepository.findUser();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过这样的形式，我们可以发现，如果我们想更改UserRepository的类型，只要修改Primary注解即可，不再需要更改UserService类了，实现了UserService类的相对独立。</p>
+<p>甚至还可以使用Configuration注解来为不同的运行环境注入不同的类实例，而且无需更改UserSerive类。非常灵活。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AppConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Profile(&quot;dev&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> UserRepository <span class="title function_">userRepositoryDev</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">InMemoryUserRepository</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Profile(&quot;prod&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> UserRepository <span class="title function_">userRepositoryProd</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">DatabaseUserRepository</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其次，使用ioc能使得测试能加简单灵活。我们可以利用上述的性质，很好地编写测试对象，随时用测试版的UserRepository来测试UserSerive的getUserInfo方法的功能。使得UserService的测试不依赖于UserRepository的正确实现，同时也能减少链接数据库的所需的时间，增加测试效率。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">hcz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2025/01/03/springboot%E7%9A%84IoC%E6%9C%BA%E5%88%B6/">http://example.com/2025/01/03/springboot%E7%9A%84IoC%E6%9C%BA%E5%88%B6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">愿晨光洒落你身</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java%E5%90%8E%E7%AB%AF/">java后端</a><a class="post-meta__tags" href="/tags/spring/">spring</a><a class="post-meta__tags" href="/tags/springboot/">springboot</a><a class="post-meta__tags" href="/tags/IoC%E6%9C%BA%E5%88%B6/">IoC机制</a></div><div class="post_share"><div class="social-share" data-image="/img/%E5%A4%B4%E5%83%8F.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2025/01/03/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE%E7%9A%84%E5%BA%94%E7%94%A8/" title="二分查找的应用"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">二分查找的应用</div></div></a></div><div class="next-post pull-right"><a href="/2024/12/23/%E6%88%91%E7%9A%84%E5%BF%83%E8%B7%AF%E5%8E%86%E7%A8%8B%E4%B8%8E%E6%9C%AA%E6%9D%A5%E8%AE%BE%E6%83%B3/" title="我的心路历程与未来设想.md"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">我的心路历程与未来设想.md</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/%E5%A4%B4%E5%83%8F.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">hcz</div><div class="author-info__description">学习日记</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">10</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i></i><span>🛴前往小家...</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#springboot%E7%9A%84IoC%E6%9C%BA%E5%88%B6"><span class="toc-number">1.</span> <span class="toc-text">springboot的IoC机制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ioc%E7%AE%80%E4%BB%8B"><span class="toc-number">1.1.</span> <span class="toc-text">ioc简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ioc%E5%AE%B9%E5%99%A8%E5%92%8Cbean"><span class="toc-number">1.2.</span> <span class="toc-text">ioc容器和bean</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%B3%A8%E5%86%8Cbean"><span class="toc-number">1.2.1.</span> <span class="toc-text">使用注解注册bean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8bean"><span class="toc-number">1.2.2.</span> <span class="toc-text">使用bean</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%A2%E4%B8%B4%E7%9A%84%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.3.</span> <span class="toc-text">面临的问题和解决方案</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By hcz</div><div class="footer_custom_text">愿晨光洒落你身</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener
+  btf.removeGlobalFnEvent('pjax')
+  btf.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
